@@ -1,12 +1,4 @@
-//===========================================================
-//===========================================================
-//===========================================================
-//
 //  Molecular dynamics simulation of hardspheres
-//
-//===========================================================
-//===========================================================
-//===========================================================
 
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
@@ -17,6 +9,7 @@
 #include <vector>
 #include <time.h>
 #include <string.h>
+#include <iomanip>
 
 #include "box.hpp"
 #include "sphere.hpp"
@@ -25,100 +18,93 @@
 #include "read_input.hpp"
 
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-  read_input input;
-  int error = input.read(argc, argv);
-  if (error) return error;
+	read_input input;
+	int error = input.read(argc, argv);
+	if (error) return error;
 
-  double d, r;   // initial diameter and radius of spheres
+	double d, r;   // initial diameter and radius of spheres
 
-  if(strcasecmp(input.readfile, "new")==0)
-    input.readfile[0]=0;
+	if (strcasecmp(input.readfile, "new") == 0)
+		input.readfile[0] = 0;
 
-  if (input.readfile[0]) // read in existing configuration
-    {
-      // read the header
-      std::ifstream infile(input.readfile);
-      if (!infile)
+	if (input.readfile[0]) // read in existing configuration
 	{
-	  std::cout << "error, can't open " << input.readfile  << std::endl;
-	  exit(-1);
+		// read the header
+		std::ifstream infile(input.readfile);
+		if (!infile)
+		{
+			std::cout << "error, can't open " << input.readfile << std::endl;
+			exit(-1);
+		}
+		else
+		{
+			int dim;
+			infile >> dim; infile.ignore(256, '\n');
+			if (dim != DIM)  // quit if dimensions don't match
+			{
+				std::cout << "error, dimensions don't match" << std::endl;
+				exit(-1);
+			}
+			infile.ignore(256, '\n');  // ignore the N 1 line
+			infile >> input.N; infile.ignore(256, '\n');
+			std::cout << "N = " << input.N << std::endl;
+			infile >> d; infile.ignore(256, '\n');
+			std::cout << "d = " << d << std::endl;
+			r = d / 2.;
+			std::cout << "r = " << r << std::endl;
+		}
 	}
-      else
+	else // create a new configuration
 	{
-	  int dim;
-	  infile >> dim; infile.ignore(256, '\n');
-	  if (dim != DIM)  // quit if dimensions don't match
-	    {
-	      std::cout << "error, dimensions don't match" << std::endl;
-	      exit(-1);
-	    }
-	  infile.ignore(256, '\n');  // ignore the N 1 line
-	  infile >> input.N; infile.ignore(256, '\n');
-	  std::cout << "N = " << input.N << std::endl;
-	  infile >> d; infile.ignore(256, '\n');
-	  std::cout << "d = " << d << std::endl;
-	  r = d/2.;
-	  std::cout << "r = " << r << std::endl;
+		r = pow(input.initialpf * pow(SIZE, DIM) / (input.N * VOLUMESPHERE), 1.0 / ((double)(DIM)));
 	}
-    }
-  else // create a new configuration
-    {
-      r = pow(input.initialpf*pow(SIZE, DIM)/(input.N*VOLUMESPHERE), 1.0/((double)(DIM)));
-    }
 
-  //Temporary radii distribution for testing
-  //std::vector<double> particle_sizes = { 1.0 };
-  //std::vector<double> particle_fractions = { 1.0 };
-  //std::vector<double> particle_masses = {1.0 };
+	//Temporary radii distribution for testing
+	std::vector<double> particle_masses(input.particle_sizes.size(), 1.0);
 
-  std::vector<double> particle_sizes = { 0.02, 0.1, 0.2, 0.5, 1.0 };
-  std::vector<double> particle_fractions = { 0.685, 0.2, 0.1, 0.01, 0.005 };
-  std::vector<double> particle_masses(particle_sizes.size(), 1.0);
+	Box b(input.N, r, input.growthrate, input.maxpf, input.particle_sizes, input.particle_fractions, particle_masses, input.hardwallBC);
 
-  box b(input.N, r, input.growthrate, input.maxpf, particle_sizes,
-      particle_fractions, particle_masses, input.hardwallBC);
-  
-  std::cout << "ngrids = " << b.ngrids << std::endl;
-  std::cout << "DIM = " << DIM << std::endl;
+	std::cout << "ngrids = " << b.ngrids << std::endl;
+	std::cout << "DIM = " << DIM << std::endl;
 
-  if(input.readfile[0])
-    {
-      std::cout << "Reading in positions of spheres" << std::endl;
-      b.RecreateSpheres(input.readfile, input.temp);
-    }
-  else 
-    {
-      std::cout << "Creating new positions of spheres" << std::endl;
-      b.CreateSpheres(input.temp);
-    } 
-  
-  std::ofstream output(input.datafile);
-  output.precision(16);  
+	if (input.readfile[0])
+	{
+		std::cout << "Reading in positions of spheres" << std::endl;
+		b.recreateSpheres(input.readfile, input.temp);
+	}
+	else
+	{
+		std::cout << "Creating new positions of spheres" << std::endl;
+		b.createSpheres(input.temp);
+	}
 
-  std::cout << "Iteration " <<  "Collision Rate " << "Packing Fraction " << "Pressure " << std::endl;
+	std::ofstream output(input.datafile);
+	output.precision(16);
+	output.setf(std::ios::fixed, std::ios::floatfield);
+	
+	std::cout << std::setw(10) << "Running LSA..." << std::endl;
+	std::cout << "\t" << std::setw(8) << "Iter" << " " << std::setw(15) << "Collision Rate" << " " << std::setw(10) << "Pf" << " " << std::setw(15) << "Press" << " " << std::setw(10) << "Max dR" << std::endl;
 
-  int iteration = 0;
-  b.WriteConfiguration(input.writefile, iteration);
-  while ((b.collisionrate < input.maxcollisionrate) && (b.pf < input.maxpf) && (b.pressure < input.maxpressure)) 
-    {
-      b.Process(input.eventspercycle*input.N);
-      output << b.pf << " " << b.pressure << " " << 
-	  b.collisionrate << " " << b.neventstot << " " << std::endl;
+	int iteration = 0;
+	b.writeConfiguration(input.writefile, iteration);
+	while ((b.pf < input.maxpf) && (b.maxSizeChange > input.maxSizeChange))	{
+		b.process(input.eventspercycle * input.N);
+		output << b.pf << " " << b.pressure << " " << b.collisionrate << " " << b.neventstot << " " << std::endl;
 
-      b.Synchronize(true);
-      std::cout << iteration << " " << b.collisionrate << " " << b.pf << "  " << b.pressure << std::endl;
+		b.synchronize(true);
+		std::cout << "\t" << std::left << std::setw(8) << iteration << " " << std::left << std::setw(15) << std::setprecision(7) << std::scientific << b.collisionrate << " " << std::left << std::setw(10) << std::fixed << b.pf << "  " << std::left << std::setw(15) << std::scientific << b.pressure << " " << std::left << std::setw(10) << b.maxSizeChange << std::endl;
 
-      iteration++;
-      b.WriteConfiguration(input.writefile, iteration);
-    }
-  
-  output.close();
+		iteration++;
+		b.writeConfiguration(input.writefile, iteration);
+	}
 
-  std::cout << "b.pf = " << b.pf << std::endl;
-  std::cout << "b.pressure = " << b.pressure << std::endl;
-  std::cout << "b.collisionrate = " << b.collisionrate << std::endl;
-    
-  return 0;
+	/*b.writeConfiguration(input.writefile, iteration);*/
+
+	output.close();
+
+	b.printStatistics();
+
+	return 0;
 }

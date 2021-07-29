@@ -1,29 +1,23 @@
-#ifndef  SPHERE_H
-#define  SPHERE_H
-
+#pragma once
 
 #include "vec.hpp"
 
-
-class sphere {
-
+class Sphere {
  public:
 
   // constructor and destructor
-
-  sphere();
-  sphere(const sphere& s);
-  sphere(int i_i, vector<DIM> x, vector<DIM, int> cell_i, double lutime_i, 
+  Sphere();
+  Sphere(const Sphere& s);
+  Sphere(int i_i, vector<DIM> x, vector<DIM, int> cell_i, double lutime_i, 
 	 double r_i, double gr_i, double m_i, int species_i);
-  ~sphere();
+  ~Sphere();
 
  //variables
-  
-  int i;                          // sphere ID
+  int id;                          // sphere ID
 
   // impending event
-  event nextevent;                // next event...can be collision or transfer
-  event nextcollision;            // next collision if next event is transfer
+  Event nextevent;                // next event...can be collision or transfer
+  Event nextcollision;            // next collision if next event is transfer
   // maybe nextnext event
   
   // past information
@@ -36,9 +30,4 @@ class sphere {
   double m;                       // sphere mass
   int species;                    // species number (not used during the MD)
   // make sure efficent in memory
-
- 
-
 };
-
-#endif 

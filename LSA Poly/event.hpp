@@ -1,24 +1,23 @@
-#ifndef  EVENT_H
-#define  EVENT_H
+#pragma once
 
 #include "vec.hpp"
 #define INF    100000000
 #define dblINF 100000000.
 
-class event {
+class Event {
 
  public:
 
   // constructor and destructor
-  event(double time_i, int i_i, int j_i, vector<DIM,int> v_i);
-  event(double time_i, int i_i, int j_i);
-  event(const event& e);
-  event();
+  Event(double time_i, int i_i, int j_i, vector<DIM,int> v_i);
+  Event(double time_i, int i_i, int j_i);
+  Event(const Event& e);
+  Event();
   
-  ~event();
+  ~Event();
 
-  bool operator<(const event&) const;
-  bool operator>(const event&) const;
+  bool operator<(const Event&) const;
+  bool operator>(const Event&) const;
   void erase();
 
  //variables
@@ -54,5 +53,3 @@ class event {
   */      
 
 };
-
-#endif 

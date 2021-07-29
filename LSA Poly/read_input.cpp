@@ -2,93 +2,125 @@
 #include <iostream>
 #include <stdio.h>
 #include <fstream>
+#include <sstream>
 
 #include "read_input.hpp"
+
+void load_dist_file(std::vector<double>& sizes, std::vector<double>& freq) {
+	std::cout << "Reading void size distribution from file..." << std::endl;
+
+	//Start reading input file
+	std::ifstream file;
+	file.open("dist.dat", std::ifstream::in);
+	if (!file.is_open()) {
+		throw;
+	}
+
+	int line_num = 0;
+	std::string tp;
+	std::cout << "\t" << "Sizes" << "           " << "Frequency" << std::endl;
+	while (std::getline(file, tp)) {
+		//Pad tp with extra space
+		tp += " ";
+
+		size_t pos = 0;
+		int term_count = 0;
+		while ((pos = tp.find_first_of(" \n\0")) != std::string::npos) {
+			std::string term = tp.substr(0, pos);
+			if (!term.empty()) {
+				double val = std::stod(term);
+				switch (term_count) {
+				case 0:
+					sizes.push_back(val);
+					break;
+				case 1:
+					freq.push_back(val);
+					break;
+				default:
+					std::cout << "Too many terms in distribution on line " << line_num << std::endl;
+					throw;
+				}
+
+				term_count++;
+			}
+			tp.erase(0, pos + 1);
+		}
+
+		std::cout << "\t" << std::left << std::setw(15) << std::setprecision(7) << sizes[line_num] << " " << freq[line_num] << std::endl;
+
+		line_num++;
+	}
+
+	file.close();
+}
 
 //================================================================
 //
 // Source File for input
 //
 //================================================================
-int read_input::read(int argc, char * argv[])
+int read_input::read(int argc, char* argv[])
 {
-  int error = 0;
-  if (argc != 2) 
-    {
-    std::cout << "Syntax: spheres input" << std::endl;
-    error = 1;
-    } 
-  else 
-    {
-    std::ifstream infile;
-    infile.open(argv[1]);
-    if(!infile)
-      {
-	std::cout << "Can't open " << argv[1] << " for input." << std::endl;
-	error = 2;
+	int error = 0;
+	if (argc != 2) {
+		std::cout << "Error, no input script provided!" << std::endl;
+		error = 1;
+	}
+	else
+	{
+		std::ifstream infile;
+		infile.open(argv[1]);
+		if (!infile) {
+			std::cout << "Can't open the input file " << argv[1] << std::endl;
+			error = 2;
+			return error;
+		}
+		else {
+			std::cout << "Reading input file " << argv[1] << std::endl;
+		}
+		char buf[100], c;
+		infile.get(buf, 100, '='); infile.get(c); infile >> eventspercycle;
+		infile.get(buf, 100, '='); infile.get(c); infile >> N;
+		infile.get(buf, 100, '='); infile.get(c); infile >> initialpf;
+		infile.get(buf, 100, '='); infile.get(c); infile >> maxpf;
+		infile.get(buf, 100, '='); infile.get(c); infile >> temp;
+		infile.get(buf, 100, '='); infile.get(c); infile >> growthrate;
+		infile.get(buf, 100, '='); infile.get(c); infile >> maxpressure;
+		infile.get(buf, 100, '='); infile.get(c); infile >> maxcollisionrate;
+		infile.get(buf, 100, '='); infile.get(c); infile >> maxSizeChange;
+
+		//Need to rewrite to read in list of sizes, fractions and masses from input file
+		infile.get(buf, 100, '='); infile.get(c); infile >> hardwallBC;
+		infile.get(buf, 100, '='); infile.get(c);
+		infile.width(NAME_LEN - 1); infile >> readfile;
+		infile.get(buf, 100, '='); infile.get(c);
+		infile.width(NAME_LEN - 1); infile >> distfile;
+		infile.get(buf, 100, '='); infile.get(c);
+		infile.width(NAME_LEN - 1); infile >> writefile;
+		infile.get(buf, 100, '='); infile.get(c);
+		infile.width(NAME_LEN - 1); infile >> datafile;
+
+		if (infile.eof())
+		{
+			std::cout << "Error reading input file " << argv[1] << std::endl;
+			error = 3;
+		}
+		std::cout << "\teventspercycle : " << eventspercycle << std::endl;
+		std::cout << "\tN : " << N << std::endl;
+		std::cout << "\tinitialpf : " << initialpf << std::endl;
+		std::cout << "\tmaxpf : " << maxpf << std::endl;
+		std::cout << "\ttemp : " << temp << std::endl;
+		std::cout << "\tgrowthrate : " << growthrate << std::endl;
+		std::cout << "\tmaxpressure : " << maxpressure << std::endl;
+		std::cout << "\tmaxcollisionrate : " << maxcollisionrate << std::endl;
+		std::cout << "\tmaxSizeChange: " << maxSizeChange << std::endl;
+		std::cout << "\thardwallBC : " << hardwallBC << std::endl;
+		std::cout << "\treadfile : " << readfile << std::endl;
+		std::cout << "\twritefile : " << writefile << std::endl;
+		std::cout << "\tdatafile : " << datafile << std::endl;
+	}
+
+	load_dist_file(particle_sizes, particle_fractions);
+
 	return error;
-      } 
-    else 
-      {
-	std::cout << "Reading input from file " << argv[1] << std::endl;
-      }
-    char buf[100],c;
-    infile.get(buf,100,'='); infile.get(c); infile >> eventspercycle;
-    infile.get(buf,100,'='); infile.get(c); infile >> N;
-    infile.get(buf,100,'='); infile.get(c); infile >> initialpf;
-    infile.get(buf,100,'='); infile.get(c); infile >> maxpf;
-    infile.get(buf,100,'='); infile.get(c); infile >> temp;
-    infile.get(buf,100,'='); infile.get(c); infile >> growthrate;
-    infile.get(buf,100,'='); infile.get(c); infile >> maxpressure;
-    infile.get(buf,100,'='); infile.get(c); infile >> maxcollisionrate;
-    //Need to rewrite to read in list of sizes, fractions and masses from input file
-    infile.get(buf,100,'='); infile.get(c);// infile >> particle_sizes;
-    infile.get(buf,100,'='); infile.get(c); //infile >> particle_fractions;
-    infile.get(buf,100,'='); infile.get(c); //infile >> particle_masses;
-    infile.get(buf,100,'='); infile.get(c); //infile >> hardwallBC;
-    infile.get(buf,100,'='); infile.get(c); 
-    infile.width(NAME_LEN-1); infile >> readfile;
-    infile.get(buf,100,'='); infile.get(c); 
-    infile.width(NAME_LEN-1); infile >> writefile;
-    infile.get(buf,100,'='); infile.get(c); 
-    infile.width(NAME_LEN-1); infile >> datafile;
-
-    if(infile.eof()) 
-      {
-	std::cout << "Error reading input file " << argv[1] << std::endl;
-	error = 3;
-      }
-    std::cout << "   eventspercycle : " << eventspercycle << std::endl;
-    std::cout << "   N : " << N << std::endl;
-    std::cout << "   initialpf : " << initialpf << std::endl;
-    std::cout << "   maxpf : " << maxpf << std::endl;
-    std::cout << "   temp : " << temp << std::endl;
-    std::cout << "   growthrate : " << growthrate << std::endl;
-    std::cout << "   maxpressure : " << maxpressure << std::endl;
-    std::cout << "   maxcollisionrate : " << maxcollisionrate << std::endl;
-    
-    std::cout << "   bidispersityratio : ";
-    for (auto& s : particle_sizes) {
-        std::cout << s << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "   bidispersityfraction : ";
-    for (auto& s : particle_fractions) {
-        std::cout << s << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "   bidispersityfraction : ";
-    for (auto& s : particle_masses) {
-        std::cout << s << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "   hardwallBC : " << hardwallBC << std::endl;
-    std::cout << "   readfile : " << readfile << std::endl;
-    std::cout << "   writefile : " << writefile << std::endl;
-    std::cout << "   datafile : " << datafile << std::endl;
-    }
-  return error;
 }

@@ -1,9 +1,7 @@
+#pragma once
 //---------------------------------------------------------------------------
 // Event heap maker
 //---------------------------------------------------------------------------
-
-#ifndef  HEAP_H
-#define  HEAP_H
 
 #include "event.hpp"
 #include "sphere.hpp"
@@ -21,7 +19,7 @@ class heap {
   int maxsize;   // max allowed number of events
   int N;         // current number of events
   int *a;
-  sphere *s;
+  Sphere *s;
   int *index;     // array of indices for each sphere
   //event minevent;
 
@@ -39,4 +37,3 @@ class heap {
   void checkindex();
   
 };
-#endif 

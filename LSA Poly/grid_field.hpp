@@ -130,6 +130,16 @@ inline T& grid_field<D, T>::get(const vector<D, int>& pos)
   for(int i=0; i<D; i++)
     p += pos.x[i]*offset[i];
 
+  if (p >= elements) {
+      std::cout << "Elements: " << elements << std::endl;
+      std::cout << "Size: " << size.x[0] << " " << size.x[1] << " " << size.x[2] << std::endl;
+      std::cout << "Pos: " << pos.x[0] << " " << pos.x[1] << " " << pos.x[2] << std::endl;
+      std::cout << "Offsets: " << offset[0] << " " << offset[1] << " " << offset[2] << std::endl;
+      std::cout << "Index: " << p << std::endl;
+      exit(-1);
+  }
+
+
   return f[p];
 }
 

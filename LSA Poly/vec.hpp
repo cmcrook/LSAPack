@@ -1,5 +1,4 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -301,7 +300,6 @@ inline double vector<D, T>::norm_squared(const vector<D, T>& v)
 
 
 // read
-// ~~~~
 template <int D, typename T>
 void vector<D, T>::read(std::ifstream& in)
 {
@@ -309,7 +307,6 @@ void vector<D, T>::read(std::ifstream& in)
 }
 
 // write
-// ~~~~~
 template <int D, typename T>
 void vector<D, T>::write(std::ofstream& out) const
 {
@@ -319,7 +316,6 @@ void vector<D, T>::write(std::ofstream& out) const
 
 
 // Insertion
-// ~~~~~~~~~
 template <int D, typename T>
 std::ostream& operator<<(std::ostream& os, const vector<D, T>& v)
 {
@@ -373,25 +369,21 @@ class vector_field {
 // ~~~~~~~~~~~~
 template<int V, int D, typename T>
 vector_field<V, D, T>::vector_field()
-  : f(0), elements(0)
-{
-}
+  : f(0), elements(0) {}
 
 
 // vector_field
 // ~~~~~~~~~~~~
 template<int V, int D, typename T>
 vector_field<V, D, T>::vector_field(const vector<D, int>& s)
-  : f(0)
-{
+  : f(0) {
   set_size(s);
 }
 
 // ~vector_field
 // ~~~~~~~~~~~~~
 template <int V, int D, typename T>
-vector_field<V, D, T>::~vector_field()
-{
+vector_field<V, D, T>::~vector_field() {
   if(f != 0)
     delete[] f;
 }
@@ -399,16 +391,14 @@ vector_field<V, D, T>::~vector_field()
 // get_size
 // ~~~~~~~~
 template<int V, int D, typename T>
-inline vector<D, int> vector_field<V, D, T>::get_size() const
-{
+inline vector<D, int> vector_field<V, D, T>::get_size() const {
   return size;
 }
 
 // set_size
 // ~~~~~~~~
 template<int V, int D, typename T>
-void vector_field<V, D, T>::set_size(const vector<D, int>& s)
-{
+void vector_field<V, D, T>::set_size(const vector<D, int>& s) {
   if(f != 0)
     delete[] f;
 
@@ -426,8 +416,7 @@ void vector_field<V, D, T>::set_size(const vector<D, int>& s)
 // get
 // ~~~
 template<int V, int D, typename T>
-inline vector<V, T>& vector_field<V, D, T>::get(const vector<D, int>& pos)
-{
+inline vector<V, T>& vector_field<V, D, T>::get(const vector<D, int>& pos) {
   int p=0;
   for(int i=0; i<D; i++)
     p += pos.x[i]*offset[i];
@@ -439,33 +428,23 @@ inline vector<V, T>& vector_field<V, D, T>::get(const vector<D, int>& pos)
 // read
 // ~~~~
 template<int V, int D, typename T>
-void vector_field<V, D, T>::read(std::ifstream& in)
-{
+void vector_field<V, D, T>::read(std::ifstream& in) {
   in.read((char*)f, elements*sizeof(T)*V);
 }
 
 
 // write
-// ~~~~~
 template<int V, int D, typename T>
-void vector_field<V, D, T>::write(std::ofstream& out) const
-{
+void vector_field<V, D, T>::write(std::ofstream& out) const {
   out.write((const char*)f, elements*sizeof(T)*V);
 }
 
 // swap
-// ~~~~
 template<int V, int D, typename T>
-void vector_field<V, D, T>::swap(vector_field<V, D, T>& v1,
-				 vector_field<V, D, T>& v2)
-{
+void vector_field<V, D, T>::swap(vector_field<V, D, T>& v1, vector_field<V, D, T>& v2){
   vector<V, T>* f;
 
   f = v1.f;
   v1.f = v2.f;
   v2.f = f;
 }
-
-
-
-#endif 

@@ -1,16 +1,12 @@
 ﻿  box.cpp
-C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(70,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(147,41): warning C4018: '<': signed/unsigned mismatch
-C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(635,10): warning C4101: 'xpos': unreferenced local variable
-C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(636,10): warning C4101: 'xneg': unreferenced local variable
-  heap.cpp
+C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(71,14): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(136,39): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(600,9): warning C4101: 'xpos': unreferenced local variable
+C:\Users\Cam\Desktop\LSA Poly\LSA Poly\box.cpp(601,9): warning C4101: 'xneg': unreferenced local variable
   main.cpp
-  neighbor.cpp
-  read_input.cpp
-  sphere.cpp
   Generating code
-  221 of 385 functions (57.4%) were compiled, the rest were copied from previous compilation.
-    140 functions were new in current compilation
-    25 functions had inline decision re-evaluated but remain unchanged
+  37 of 426 functions ( 8.7%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    34 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   LSA Poly.vcxproj -> C:\Users\Cam\Desktop\LSA Poly\Release\LSA Poly.exe

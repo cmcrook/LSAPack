@@ -10,7 +10,7 @@
 //==============================================================
 // Constructor
 //==============================================================
-event::event(double time_i, int i_i, int j_i, vector<DIM,int> v_i):
+Event::Event(double time_i, int i_i, int j_i, vector<DIM,int> v_i):
   time(time_i),
   i(i_i),
   j(j_i),
@@ -18,14 +18,14 @@ event::event(double time_i, int i_i, int j_i, vector<DIM,int> v_i):
 {
 }
 
-event::event(double time_i, int i_i, int j_i):
+Event::Event(double time_i, int i_i, int j_i):
   time(time_i),
   i(i_i),
   j(j_i)
 {
 }
 
-event::event(const event& e)
+Event::Event(const Event& e)
 {
   time = e.time;
   i = e.i;
@@ -33,7 +33,7 @@ event::event(const event& e)
   v = e.v;
 }
 
-event::event()
+Event::Event()
 {
 }
 
@@ -41,23 +41,23 @@ event::event()
 //==============================================================
 // Destructor
 //==============================================================
-event::~event() 
+Event::~Event() 
 {
 }
 
-void event::erase()
+void Event::erase()
 {
   time = dblINF;
   i = 0;
   j = 0;
 }
 
-bool event::operator<(const event& e) const
+bool Event::operator<(const Event& e) const
 {
   return e.time < time;
 }
 
-bool event::operator>(const event& e) const
+bool Event::operator>(const Event& e) const
 {
   return e.time > time;
 }

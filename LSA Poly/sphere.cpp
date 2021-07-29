@@ -16,7 +16,7 @@
 //==============================================================
 // Constructor
 //==============================================================
-sphere::sphere()
+Sphere::Sphere()
 {
 }
 
@@ -24,9 +24,9 @@ sphere::sphere()
 //==============================================================
 // Constructor
 //==============================================================
-sphere::sphere(const sphere& s)
+Sphere::Sphere(const Sphere& s)
 {
-  i = s.i;
+  id = s.id;
   x = s.x;
   v = s.v;
   cell = s.cell;
@@ -42,9 +42,9 @@ sphere::sphere(const sphere& s)
 //==============================================================
 // Constructor
 //==============================================================
-sphere::sphere(int i_i, vector<DIM> x_i, vector<DIM, int> cell_i, 
+Sphere::Sphere(int i_i, vector<DIM> x_i, vector<DIM, int> cell_i, 
 	       double lutime_i, double r_i, double gr_i, double m_i, int species_i):
-  i(i_i),
+  id(i_i),
   x(x_i),
   cell(cell_i),
   lutime(lutime_i),
@@ -58,7 +58,7 @@ sphere::sphere(int i_i, vector<DIM> x_i, vector<DIM, int> cell_i,
 //==============================================================
 // Destructor
 //==============================================================
-sphere::~sphere() 
+Sphere::~Sphere() 
 {
 
 }
