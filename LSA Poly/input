@@ -1,12 +1,14 @@
+seed = 0;
 eventspercycle = 20;              // # events per sphere per cycle
-int N = 500000;                          // number of spheres1000
+int N = 500;                          // number of spheres1000
 initialpf = 0.01;              // initial packing fraction
 maxpf = 0.99;                  // max packing fraction
 temp = 0.2;                    // initial temp., use 0 for zero velocities
 growthrate = 0.01;            // growth rate
 maxpressure = 1e10;       // max pressure 
 maxcollisionrate = 1e10;  // max collision rate 
-maxSizeChange = 1e-10;
+maxSizeChange = 1e-8;
+citer = 2;
 hardwallBC = 0;                   // 0 for periodic, 1 for hard wall BC
 readfile = new                  // can read in configuration of spheres; if new, creates new
 distfile = dist.dat

@@ -14,7 +14,7 @@
 //==============================================================
 // Constructor
 //==============================================================
-heap::heap(int maxsize_i):
+Heap::Heap(int maxsize_i):
   maxsize(maxsize_i)
 {
   a = new int[maxsize];
@@ -27,7 +27,7 @@ heap::heap(int maxsize_i):
 //==============================================================
 // Constructor
 //==============================================================
-heap::heap(const heap &h)
+Heap::Heap(const Heap &h)
 {
   maxsize = h.maxsize;
   a = h.a;
@@ -40,7 +40,7 @@ heap::heap(const heap &h)
 //==============================================================
 // Destructor
 //==============================================================
-heap::~heap()
+Heap::~Heap()
 {
   delete[] a;
   delete[] index;
@@ -49,7 +49,7 @@ heap::~heap()
 //==============================================================
 // Upheap
 //==============================================================
-void heap::upheap(int k)
+void Heap::upheap(int k)
 {
   int i = a[k];
 
@@ -66,7 +66,7 @@ void heap::upheap(int k)
 //==============================================================
 // Downheap
 //==============================================================
-void heap::downheap(int k)
+void Heap::downheap(int k)
 {
   int j;
   int i = a[k];
@@ -89,7 +89,7 @@ void heap::downheap(int k)
 //==============================================================
 // Insert
 //==============================================================
-void heap::insert(int i)
+void Heap::insert(int i)
 {
   if (N >= maxsize)
     std::cout << "error, N >= maxsize, cannot insert another event" << std::endl;
@@ -106,7 +106,7 @@ void heap::insert(int i)
 //==============================================================
 // Extract max
 //==============================================================
-int heap::extractmax()
+int Heap::extractmax()
 {
   return a[1];
 }
@@ -138,7 +138,7 @@ void heap::replace(int i)
 //==============================================================
 // Search
 //==============================================================
-int heap::search(int j)
+int Heap::search(int j)
 {
   for (int k=1; k<=N; k++)
     {
@@ -169,7 +169,7 @@ void heap::change(int i)
 //==============================================================
 // Print
 //==============================================================
-void heap::print()
+void Heap::print()
 {
   for (int k=1; k<=N; k++)
     std::cout << k << " " << a[k] << " " << s[a[k]].nextevent.j << " " << s[a[k]].nextevent.time << std::endl;
@@ -179,7 +179,7 @@ void heap::print()
 //==============================================================
 // Check index array
 //==============================================================
-void heap::checkindex()
+void Heap::checkindex()
 {
   for (int k=1; k<=N; k++)
     std::cout << k << " " << a[k] << " " << index[a[k]] << std::endl;

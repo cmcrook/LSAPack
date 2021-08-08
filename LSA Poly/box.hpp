@@ -16,6 +16,8 @@
 // Box maker
 //---------------------------------------------------------------------------
 
+
+#include <optional>
 #include <vector>
 #include <math.h>
 
@@ -32,15 +34,13 @@
 #define DBL_EPSILON  2.2204460492503131e-016 // smallest # such that 1.0+DBL_EPSILON!=1.0
 #define M 1.0
 
-//---------------------------------------------------------------------------
-// Class neighbor
-//---------------------------------------------------------------------------
-class neighbor
+
+class Neighbor
 {
 public:
 	int i;
 
-	neighbor(int i_i);
+	Neighbor(int i_i);
 
 public:
 	virtual void Operation(int j, vector<DIM, int>& pboffset) = 0;
@@ -52,7 +52,7 @@ public:
 	// constructor and destructor
 	Box(int N_i, double r_i, double growthrate_i, double maxpf_i,
 		std::vector<double> bidispersityratio, std::vector<double> bidispersityfraction,
-		std::vector<double> massratio, int hardwallBC);
+		std::vector<double> massratio, int hardwallBC, int seed);
 	~Box();
 
 	// Creating configurations
@@ -61,7 +61,7 @@ public:
 	void createSphere(int Ncurrent, double radius, double growth_rate, double mass, int species);
 	double velocity(double temp);
 	void thermalize(double temp);
-	void SetInitialEvents();
+	void setInitialEvents();
 	void recreateSpheres(const char* filename, double temp);
 	void readPositions(const char* filename);
 	void assignCells();
@@ -71,7 +71,7 @@ public:
 	void collisionChecker(Event c);
 	Event findNextTransfer(int i);
 	Event findNextCollision(int i);
-	void forAllNeighbors(int, vector<DIM, int>, vector<DIM, int>, neighbor&);
+	void forAllNeighbors(int, vector<DIM, int>, vector<DIM, int>, Neighbor&);
 	void predictCollision(int i, int j, vector<DIM, int> pboffset, double& ctime, int& cpartner, vector<DIM, int>& cpartnerpboffset);
 	double calculateCollision(int i, int j, vector<DIM>  pboffset);
 	double quadraticFormula(double a, double b, double c);
@@ -101,9 +101,8 @@ public:
 
 
 	//variables
-
 	const int N;                   // number of spheres
-
+	const int seed;                      //Random seed
 	int ngrids;                    // number of cells in one direction
 	double maxpf;
 	double growthrate;             // growth rate of the spheres
@@ -112,6 +111,7 @@ public:
 	double rtime;                  // reset time, total time = rtime + gtime
 	double collisionrate;          // average rate of collision between spheres
 	double maxSizeChange;
+	double citer;                 //Consecutive iterations that satisfy stopping criterion
 	std::vector<double> particle_sizes;      // ratio of sphere radii
 	std::vector<double> particle_fraction;   // fraction of smaller spheres
 	std::vector<double> particle_mass;              // ratio of sphere masses
@@ -134,9 +134,9 @@ public:
 
 	// arrays
 	Sphere* s;                      // array of spheres
-	grid_field<DIM, int> cells; // array that keeps track of spheres in each cell
+	GridField<DIM, int> cells; // array that keeps track of spheres in each cell
 	int* binlist;                   // linked-list for cells array
-	heap heap;                         // event heap
+	Heap heap;                         // event heap
 	vector<DIM>* x;                 // positions of spheres.used for graphics
 };
 
@@ -144,10 +144,10 @@ public:
 //---------------------------------------------------------------------------
 // Predicts collisions, inherits neighbor operation
 //---------------------------------------------------------------------------
-class Collision : public neighbor {
+class Collision : public Neighbor {
 public:
 
-	Box* b;
+	Box* box;
 	double ctime;
 	int cpartner;
 	vector<DIM, int> cpartnerpboffset;

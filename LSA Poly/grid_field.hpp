@@ -24,7 +24,7 @@
 // A field of V-vectors on a D dimensional manifold
 
 template<int D, class T>
-class grid_field {
+class GridField {
   
  public:
   int elements;
@@ -36,9 +36,9 @@ class grid_field {
  
  public:
 
-  grid_field();
-  grid_field(const vector<D, int>&);
-  ~grid_field();
+  GridField();
+  GridField(const vector<D, int>&);
+  ~GridField();
 
   T& get(const vector<D, int>&);
 
@@ -52,7 +52,7 @@ class grid_field {
 // grid_field
 // ~~~~~~~~~~~~
 template<int D, class T>
-grid_field<D, T>::grid_field()
+GridField<D, T>::GridField()
   : f(0), elements(0)
 {
 }
@@ -61,7 +61,7 @@ grid_field<D, T>::grid_field()
 // grid_field
 // ~~~~~~~~~~~~
 template<int D, class T>
-grid_field<D, T>::grid_field(const vector<D, int>& s)
+GridField<D, T>::GridField(const vector<D, int>& s)
   : f(0)
 {
   set_size(s);
@@ -71,7 +71,7 @@ grid_field<D, T>::grid_field(const vector<D, int>& s)
 // ~grid_field
 // ~~~~~~~~~~~~~
 template <int D, class T>
-grid_field<D, T>::~grid_field()
+GridField<D, T>::~GridField()
 {
   if(f != 0)
     delete[] f;
@@ -81,7 +81,7 @@ grid_field<D, T>::~grid_field()
 // get_size
 // ~~~~~~~~
 template<int D, class T>
-inline vector<D, int> grid_field<D, T>::get_size() const
+inline vector<D, int> GridField<D, T>::get_size() const
 {
   return size;
 }
@@ -90,7 +90,7 @@ inline vector<D, int> grid_field<D, T>::get_size() const
 // set_size
 // ~~~~~~~~
 template<int D, class T>
-void grid_field<D, T>::set_size(const vector<D, int>& s)
+void GridField<D, T>::set_size(const vector<D, int>& s)
 {
   if(f != 0)
     delete[] f;
@@ -110,7 +110,7 @@ void grid_field<D, T>::set_size(const vector<D, int>& s)
 // set_size
 // ~~~~~~~~
 template<int D, class T>
-void grid_field<D, T>::set_size(const int s)
+void GridField<D, T>::set_size(const int s)
 {
   vector<D, int> square;
 
@@ -124,7 +124,7 @@ void grid_field<D, T>::set_size(const int s)
 // get
 // ~~~
 template<int D, class T>
-inline T& grid_field<D, T>::get(const vector<D, int>& pos)
+inline T& GridField<D, T>::get(const vector<D, int>& pos)
 {
   int p=0;
   for(int i=0; i<D; i++)
@@ -147,7 +147,7 @@ inline T& grid_field<D, T>::get(const vector<D, int>& pos)
 // initialize
 // ~~~
 template<int D, class T>
-void grid_field<D, T>::initialize(const int value)
+void GridField<D, T>::initialize(const int value)
 {
   for(int i=0; i<elements; i++)
     f[i] = value;

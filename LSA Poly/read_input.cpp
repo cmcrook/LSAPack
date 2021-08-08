@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 #include "read_input.hpp"
 
@@ -54,11 +55,8 @@ void load_dist_file(std::vector<double>& sizes, std::vector<double>& freq) {
 	file.close();
 }
 
-//================================================================
-//
+
 // Source File for input
-//
-//================================================================
 int read_input::read(int argc, char* argv[])
 {
 	int error = 0;
@@ -79,6 +77,7 @@ int read_input::read(int argc, char* argv[])
 			std::cout << "Reading input file " << argv[1] << std::endl;
 		}
 		char buf[100], c;
+		infile.get(buf, 100, '='); infile.get(c); infile >> seed;
 		infile.get(buf, 100, '='); infile.get(c); infile >> eventspercycle;
 		infile.get(buf, 100, '='); infile.get(c); infile >> N;
 		infile.get(buf, 100, '='); infile.get(c); infile >> initialpf;
@@ -88,6 +87,7 @@ int read_input::read(int argc, char* argv[])
 		infile.get(buf, 100, '='); infile.get(c); infile >> maxpressure;
 		infile.get(buf, 100, '='); infile.get(c); infile >> maxcollisionrate;
 		infile.get(buf, 100, '='); infile.get(c); infile >> maxSizeChange;
+		infile.get(buf, 100, '='); infile.get(c); infile >> citer;
 
 		//Need to rewrite to read in list of sizes, fractions and masses from input file
 		infile.get(buf, 100, '='); infile.get(c); infile >> hardwallBC;
@@ -105,6 +105,13 @@ int read_input::read(int argc, char* argv[])
 			std::cout << "Error reading input file " << argv[1] << std::endl;
 			error = 3;
 		}
+
+		if (seed == 0) {
+			seed = std::chrono::system_clock::now().time_since_epoch().count();
+			std::cout << "No seed provided, randomly chose " << seed << std::endl;
+		}
+
+		std::cout << "\tseed : " << seed << std::endl;
 		std::cout << "\teventspercycle : " << eventspercycle << std::endl;
 		std::cout << "\tN : " << N << std::endl;
 		std::cout << "\tinitialpf : " << initialpf << std::endl;
@@ -114,6 +121,7 @@ int read_input::read(int argc, char* argv[])
 		std::cout << "\tmaxpressure : " << maxpressure << std::endl;
 		std::cout << "\tmaxcollisionrate : " << maxcollisionrate << std::endl;
 		std::cout << "\tmaxSizeChange: " << maxSizeChange << std::endl;
+		std::cout << "\tciter: " << citer << std::endl;
 		std::cout << "\thardwallBC : " << hardwallBC << std::endl;
 		std::cout << "\treadfile : " << readfile << std::endl;
 		std::cout << "\twritefile : " << writefile << std::endl;

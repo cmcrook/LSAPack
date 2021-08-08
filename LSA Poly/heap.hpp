@@ -6,14 +6,14 @@
 #include "event.hpp"
 #include "sphere.hpp"
 
-class heap {
+class Heap {
 
  public:
 
   // constructor and destructor
-  heap(int maxsize);
-  heap(const heap &h);
-  ~heap();
+  Heap(int maxsize);
+  Heap(const Heap &h);
+  ~Heap();
 
   // variables
   int maxsize;   // max allowed number of events

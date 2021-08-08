@@ -35,7 +35,7 @@
 //==============================================================
 Box::Box(int N_i, double r_i, double growthrate_i, double maxpf_i,
 	 std::vector<double> bidispersityratio_i, std::vector<double> bidispersityfraction_i,
-	std::vector<double> massratio_i, int hardwallBC_i) :
+	std::vector<double> massratio_i, int hardwallBC_i, int seed) :
 	r(r_i),
 	N(N_i),
 	growthrate(growthrate_i),
@@ -44,19 +44,10 @@ Box::Box(int N_i, double r_i, double growthrate_i, double maxpf_i,
 	particle_sizes(bidispersityratio_i),
 	particle_fraction(bidispersityfraction_i),
 	particle_mass(massratio_i),
-	hardwallBC(hardwallBC_i)
+	hardwallBC(hardwallBC_i),
+	seed(seed)
 {
 	gtime = 0.0;
-
-	ngrids = optimalngrids();
-	cells.set_size(ngrids);
-	cells.initialize(-1);      // initialize cells to -1
-
-	s = new Sphere[N];
-	binlist = new int[N];
-	x = new vector<DIM>[N];
-	heap.s = s;
-
 	rtime = 0.0;
 	ncollisions = 0;
 	ntransfers = 0;
@@ -68,7 +59,16 @@ Box::Box(int N_i, double r_i, double growthrate_i, double maxpf_i,
 	collisionrate = 0.0;
 	maxSizeChange = DBL_MAX;
 
-	srand(::time(0));        // initialize the random number generator
+	ngrids = optimalngrids();
+	cells.set_size(ngrids);
+	cells.initialize(-1);      // initialize cells to -1
+
+	s = new Sphere[N];
+	binlist = new int[N];
+	x = new vector<DIM>[N];
+	heap.s = s;
+
+	srand(seed);        // initialize the random number generator
 	for (int i = 0; i < N; i++)    // initialize binlist to -1
 		binlist[i] = -1;
 
@@ -113,7 +113,7 @@ void Box::recreateSpheres(const char* filename, double temp) {
 	readPositions(filename);  // reads in positions of spheres
 	thermalize(temp);      // gives spheres initial velocities
 	assignCells();            // assigns spheres to cells
-	SetInitialEvents();
+	setInitialEvents();
 }
 
 // Creates all N spheres at random positions
@@ -145,7 +145,7 @@ void Box::createSpheres(double temp) {
 		std::cout << "problem! only made " << Ncurrent << " out of " << N << " desired spheres" << std::endl;
 
 	thermalize(temp);
-	SetInitialEvents();
+	setInitialEvents();
 }
 
 
@@ -164,7 +164,7 @@ void Box::createSphere(int Ncurrent, double radius, double growth_rate, double m
 		keeper = 1;
 
 		for (int k = 0; k < DIM; k++)
-			xrand[k] = ((double)rand() / (double)RAND_MAX) * SIZE;
+			xrand[k] = ((double)rand() / (double)RAND_MAX)* SIZE;
 
 		for (int i = 0; i < Ncurrent; i++) {
 			d = 0.0;
@@ -322,7 +322,7 @@ double Box::velocity(double temp) {
 //==============================================================
 // Finds next events for all spheres..do this once at beginning
 //==============================================================
-void Box::SetInitialEvents()
+void Box::setInitialEvents()
 {
 	for (int i = 0; i < N; i++)  // set all events to checks
 	{
@@ -450,7 +450,7 @@ Event Box::findNextTransfer(int i)
 // Check all nearest neighbor cells for collision partners
 //==============================================================
 void Box::forAllNeighbors(int i, vector<DIM, int> vl, vector<DIM, int> vr,
-			  neighbor& operation)
+			  Neighbor& operation)
 {
 	vector<DIM, int> cell = s[i].cell;
 
@@ -1042,6 +1042,7 @@ void Box::process(int n)
 // Prints statistics for n events
 //==============================================================
 void Box::printStatistics() {
+	std::cout << "seed = " << seed << std::endl;
 	std::cout << "packing fraction = " << pf << std::endl;
 	std::cout << "gtime = " << gtime << std::endl;
 	std::cout << "total time = " << rtime + gtime << std::endl;
