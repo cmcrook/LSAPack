@@ -1,4 +1,5 @@
 //  Molecular dynamics simulation of hardspheres
+//  Modified by Cameron Crook
 
 #define strncasecmp _strnicmp
 //#define strcasecmp _stricmp
