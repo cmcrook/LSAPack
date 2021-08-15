@@ -2,7 +2,7 @@
 //  Modified by Cameron Crook
 
 #define strncasecmp _strnicmp
-//#define strcasecmp _stricmp
+#define strcasecmp _stricmp
 
 #include <iostream>
 #include <math.h>
