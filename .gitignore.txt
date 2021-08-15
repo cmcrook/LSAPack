@@ -52,6 +52,12 @@ bld/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+.ipch
+.obj
 v16/
 *.sln
 *.vcxproj
