@@ -6,13 +6,18 @@
 #include <chrono>
 
 #include "read_input.hpp"
+#include <string.h>
 
-void load_dist_file(std::vector<double>& sizes, std::vector<double>& freq) {
+#ifdef WIN32
+#define strcasecmp _stricmp
+#endif 
+
+void load_dist_file(const char* wconfigfile, std::vector<double>& sizes, std::vector<double>& freq) {
 	std::cout << "Reading void size distribution from file..." << std::endl;
 
 	//Start reading input file
 	std::ifstream file;
-	file.open("dist.dat", std::ifstream::in);
+	file.open(wconfigfile, std::ifstream::in);
 	if (!file.is_open()) {
 		throw;
 	}
@@ -124,11 +129,19 @@ int read_input::read(int argc, char* argv[])
 		std::cout << "\tciter: " << citer << std::endl;
 		std::cout << "\thardwallBC : " << hardwallBC << std::endl;
 		std::cout << "\treadfile : " << readfile << std::endl;
+		std::cout << "\tdistfile : " << distfile << std::endl;
 		std::cout << "\twritefile : " << writefile << std::endl;
 		std::cout << "\tdatafile : " << datafile << std::endl;
 	}
 
-	load_dist_file(particle_sizes, particle_fractions);
+	if(strcasecmp(distfile, "none") != 0)
+		load_dist_file(distfile, particle_sizes, particle_fractions);
+	else {
+		//No dist file then just run monodispersed size distribution
+		particle_sizes.push_back(1.0);
+		particle_fractions.push_back(1.0);
+	}
+
 
 	return error;
 }

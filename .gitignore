@@ -61,3 +61,9 @@ v16/
 *.sln
 *.vcxproj
 *.suo
+
+# Program specific file extensions
+*.dat
+*.stats
+*.in
+*.dump

@@ -1,18 +1,19 @@
 //  Molecular dynamics simulation of hardspheres
 //  Modified by Cameron Crook
 
-#define strncasecmp _strnicmp
+#ifdef WIN32
 #define strcasecmp _stricmp
+#endif 
 
+#include <iomanip>
 #include <iostream>
-#include <math.h>
 #include <fstream>
+#include <sstream>
 #include <vector>
+#include <fstream>
+#include <math.h>
 #include <time.h>
 #include <string.h>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
 
 #include "box.hpp"
 #include "sphere.hpp"
@@ -137,12 +138,12 @@ int main(int argc, char** argv)
 
 	if (input.readfile[0])
 	{
-		std::cout << "Reading in positions of spheres" << std::endl;
+		std::cout << "Reading in sphere positions from file" << std::endl;
 		b.recreateSpheres(input.readfile, input.temp);
 	}
 	else
 	{
-		std::cout << "Creating new positions of spheres" << std::endl;
+		std::cout << "Creating new sphere  positions" << std::endl;
 		b.createSpheres(input.temp);
 	}
 
@@ -156,13 +157,14 @@ int main(int argc, char** argv)
 		  << " " << std::left << std::setw(10) << "Pf" 
 		  << " " << std::left << std::setw(15) << "Collision Rate" 
 		  << " " << std::left << std::setw(15) << "Press" 
-		  << " " << std::left << std::setw(10) << "Max dR" 
-		  << " " << std::left << std::setw(5) << "Ngrids"
-		  << " " << std::left << std::setw(5) << "Sim Time" << std::endl;
+		  << " " << std::left << std::setw(15) << "Max dR" 
+		  << " " << std::left << std::setw(7) << "Ngrids"
+		  << " " << std::left << std::setw(10) << "Sim Time" << std::endl;
 	output << stats.str();
 	std::cout << stats.str();
 
 	int iteration = 0;
+	//b.writeLAMMPSDump("pack.dump", iteration);
 	b.writeConfiguration(input.writefile, iteration);
 	while (b.pf < input.maxpf)	{
 		iteration++; //0 is initial configuration
@@ -184,8 +186,8 @@ int main(int argc, char** argv)
 				<< " " << std::left << std::setw(10) << std::fixed << b.pf 
 				<< " " << std::left << std::setw(15) << std::setprecision(7) << std::scientific << b.collisionrate 
 				<< " " << std::left << std::setw(15) << std::scientific << b.pressure 
-				<< " " << std::left << std::setw(10) << b.maxSizeChange 
-				<< " " << std::left << std::setw(3) << b.ngrids
+				<< " " << std::left << std::setw(15) << b.maxSizeChange 
+				<< " " << std::left << std::setw(7) << b.ngrids
 				<< " " << std::left << std::setw(10) << b.rtime << std::endl;
 			output << stats.str();
 			std::cout << stats.str();
@@ -202,9 +204,10 @@ int main(int argc, char** argv)
 			break;
 	}
 
-	pack2rdf(b, input.N, 100, SIZE);
+	//Output is now a custom lammps dump file, rdf can be calculated in ovito
+	//pack2rdf(b, input.N, 100, SIZE);
 
-	b.writeLAMMPSDump("lammps.dump", iteration);
+	b.writeLAMMPSDump("pack.dump", iteration);
 
 	output.close();
 

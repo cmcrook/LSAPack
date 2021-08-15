@@ -1019,7 +1019,6 @@ int Box::optimalngrids()
 	int ngrid = (int)(1. / (2. * maxr));
 
 	std::cout << "Max R: " << maxr << std::endl;
-	std::cout << "Ngrids: " << ngrid << std::endl;
 	return ngrid;
 }
 
@@ -1199,9 +1198,9 @@ void Box::writeLAMMPSDump(const char* wconfigfile, int iteration) {
 
 	std::ofstream output;
 	//if (iteration == 0)
-	output = std::ofstream(wconfigfile); // Overwrite file if this is initial configuration
-//else
-//	output = std::ofstream(wconfigfile, std::ios_base::app); // Append new configuration to existing file
+		output = std::ofstream(wconfigfile); // Overwrite file if this is initial configuration
+	//else
+	//	output = std::ofstream(wconfigfile, std::ios_base::app); // Append new configuration to existing file
 
 //Formatting
 	output.setf(std::ios::fixed, std::ios::floatfield);
