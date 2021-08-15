@@ -51,15 +51,13 @@ bld/
 [Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
+v16/
 .vs/
 *.VC.db
 *.VC.db-shm
 *.db-wal
 *.opendb
 *.ipch
-
-v16/
 *.sln
 *.vcxproj
-.vs/FoamGen/v16/.suo
-.vs/FoamGen/v16/Browse.VC.db
+*.suo
