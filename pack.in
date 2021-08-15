@@ -1,4 +1,4 @@
-seed = 0;                          //Seed, 0 means pick a random seed
+seed = 1;                          //Seed, 0 means pick a random seed
 eventspercycle = 20;              // # events per sphere per cycle
 int N = 500;                          // number of spheres1000
 initialpf = 0.01;              // initial packing fraction
