@@ -1,3 +1,0 @@
-﻿  main.cpp
-C:\Users\Cam\Desktop\LSA Poly\LSA Poly\main.cpp(60,18): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-  LSA Poly.vcxproj -> C:\Users\Cam\Desktop\LSA Poly\Debug\LSA Poly.exe
