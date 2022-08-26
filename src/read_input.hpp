@@ -7,7 +7,7 @@
 class read_input {
 
 public:
-
+	int dim;                     //dimension of simulation
 	int seed;                    //Random seed
 	int eventspercycle;          // # events per particle per cycle 
 	int N;                        // # spheres

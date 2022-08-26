@@ -67,7 +67,7 @@ int read_input::read(int argc, char* argv[])
 	int error = 0;
 	if (argc != 2) {
 		std::cout << "Error, no input script provided!" << std::endl;
-		error = 1;
+		exit(-1);
 	}
 	else
 	{
@@ -75,13 +75,13 @@ int read_input::read(int argc, char* argv[])
 		infile.open(argv[1]);
 		if (!infile) {
 			std::cout << "Can't open the input file " << argv[1] << std::endl;
-			error = 2;
-			return error;
+			exit(-1);
 		}
 		else {
 			std::cout << "Reading input file " << argv[1] << std::endl;
 		}
 		char buf[100], c;
+		infile.get(buf, 100, '='); infile.get(c); infile >> dim;
 		infile.get(buf, 100, '='); infile.get(c); infile >> seed;
 		infile.get(buf, 100, '='); infile.get(c); infile >> eventspercycle;
 		infile.get(buf, 100, '='); infile.get(c); infile >> N;
@@ -108,7 +108,7 @@ int read_input::read(int argc, char* argv[])
 		if (infile.eof())
 		{
 			std::cout << "Error reading input file " << argv[1] << std::endl;
-			error = 3;
+			exit(-1);
 		}
 
 		if (seed == 0) {
@@ -116,6 +116,7 @@ int read_input::read(int argc, char* argv[])
 			std::cout << "No seed provided, randomly chose " << static_cast<int>(seed) << std::endl;
 		}
 
+		std::cout << "\tdim : " << dim << std::endl;
 		std::cout << "\tseed : " << seed << std::endl;
 		std::cout << "\teventspercycle : " << eventspercycle << std::endl;
 		std::cout << "\tN : " << N << std::endl;

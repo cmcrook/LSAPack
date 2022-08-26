@@ -49,13 +49,22 @@ public:
 class Box {
 public:
 	// constructor and destructor
-	Box(int N_i, double r_i, double growthrate_i, double maxpf_i,
-		std::vector<double> bidispersityratio, std::vector<double> bidispersityfraction,
-		std::vector<double> massratio, int hardwallBC, int seed);
+	Box(int dim, 
+		int N_i, 
+		double growthrate_i, 
+		double initpf_i,
+		double maxpf_i,
+		std::vector<double> bidispersityratio, 
+		std::vector<double> bidispersityfraction,
+		std::vector<double> massratio, 
+		int hardwallBC, 
+		int seed);
+
 	~Box();
 
 	// Creating configurations
 	int optimalngrids();
+	void initSpheres(bool fromFile, const char* filename, double temp);
 	void createSpheres(double temp);
 	void createSphere(int Ncurrent, double radius, double growth_rate, double mass, int species);
 	double velocity(double temp);
@@ -100,10 +109,12 @@ public:
 	void writeLAMMPSDump(const char* wconfigfile, int iteration);
 
 	//variables
+	const int dim;                 //number of dimensions of simulation (e.g. 3 = 3D)
 	const int N;                   // number of spheres
 	const int seed;                      //Random seed
 	int ngrids;                    // number of cells in one direction
-	double maxpf;
+	double initpf;                 //initial packing fraction
+	double maxpf;                  //maximal packing fraction
 	double growthrate;             // growth rate of the spheres
 	double r;                      // radius, defined at gtime = 0
 	double gtime;                  // this is global clock

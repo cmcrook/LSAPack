@@ -36,13 +36,22 @@
 //==============================================================
 // Constructor
 //==============================================================
-Box::Box(int N_i, double r_i, double growthrate_i, double maxpf_i,
-	 std::vector<double> bidispersityratio_i, std::vector<double> bidispersityfraction_i,
-	std::vector<double> massratio_i, int hardwallBC_i, int seed) :
-	r(r_i),
+Box::Box(int dim, 
+	int N_i, 
+	double growthrate_i, 
+	double initpf_i,
+	double maxpf_i,
+	std::vector<double> bidispersityratio_i, 
+	std::vector<double> bidispersityfraction_i,
+	std::vector<double> massratio_i, 
+	int hardwallBC_i, 
+	int seed) :
+	
+	dim(dim),
 	N(N_i),
 	growthrate(growthrate_i),
 	heap(N_i + 1),
+	initpf(initpf_i),
 	maxpf(maxpf_i),
 	particle_sizes(bidispersityratio_i),
 	particle_fraction(bidispersityfraction_i),
@@ -61,10 +70,6 @@ Box::Box(int N_i, double r_i, double growthrate_i, double maxpf_i,
 	pressure = 0.0;
 	collisionrate = 0.0;
 	maxSizeChange = DBL_MAX;
-
-	ngrids = optimalngrids();
-	cells.set_size(ngrids);
-	cells.initialize(-1);      // initialize cells to -1
 
 	s = new Sphere[N];
 	binlist = new int[N];
@@ -93,22 +98,60 @@ void Box::readPositions(const char* filename) {
 	// open file to read in arrays
 	std::ifstream infile(filename);
 
-	infile.ignore(256, '\n');  // ignore the dim line
-	infile.ignore(256, '\n');  // ignore the #sphere 1 line
-	infile.ignore(256, '\n');  // ignore the #sphere line
-	infile.ignore(256, '\n');  // ignore the diameter line
-	infile.ignore(1000, '\n'); // ignore the 100 010 001 line
-	infile.ignore(256, '\n');  // ignore the T T T line
+	if (!infile)
+	{
+		std::cout << "error, can't open " << filename << std::endl;
+		exit(-1);
+	}
+
+	infile.ignore(256, '\n');  // ignore the iteration line
+	//infile.ignore(256, '\n');  // ignore the #sphere 1 line
+	//infile.ignore(256, '\n');  // ignore the #sphere line
+	//infile.ignore(256, '\n');  // ignore the diameter line
+	//infile.ignore(1000, '\n'); // ignore the 100 010 001 line
+	//infile.ignore(256, '\n');  // ignore the T T T line
+	double minr = DBL_MAX, maxr = 0;
 
 	for (int i = 0; i < N; i++)
-	{
-		infile >> s[i].r;      // read in radius    
-		infile >> s[i].gr;     // read in growth rate
-		infile >> s[i].m;      // read in mass
+	{	   
+		//infile >> s[i].gr;     // read in growth rate
+		//infile >> s[i].m;      // read in mass
 		for (int k = 0; k < DIM; k++)
 			infile >> s[i].x[k]; // read in position 
+		infile >> s[i].r;      // read in radius
+		if (s[i].r > maxr)
+			maxr = s[i].r;
+
+		if (s[i].r < minr)
+			minr = s[i].r;
 	}
+
+	r = maxr;
+
+	ngrids = optimalngrids();
+	cells.set_size(ngrids);
+	cells.initialize(-1);      // initialize cells to -1
+
 	infile.close();
+}
+
+void Box::initSpheres(bool fromFile, const char* filename, double temp) {
+	if (fromFile)
+	{
+		// Create initial configuration from previous file for either  continued or restart run
+		std::cout << "Reading in sphere positions from file" << std::endl;
+		recreateSpheres(filename, temp);
+	}
+	else
+	{
+		// Create new initial configuration
+		std::cout << "Creating new sphere  positions" << std::endl;
+		r = pow(initpf * pow(SIZE, DIM) / (N * VOLUMESPHERE), 1.0 / ((double)(DIM)));
+		ngrids = optimalngrids();
+		cells.set_size(ngrids);
+		cells.initialize(-1);      // initialize cells to -1
+		createSpheres(temp);
+	}
 }
 
 // Recreates all N spheres at random positions
@@ -288,16 +331,16 @@ void Box::thermalize(double temp) {
 	{
 		for (int k = 0; k < DIM; k++)
 		{
-			if (temp == 0.0)
-				s[i].v[k] = 0.0;
-			else
-				s[i].v[k] = velocity(temp);
+			s[i].v[k] = velocity(temp);
 		}
 	}
 }
 
 // Velocity, gives a single velocity from Max/Boltz dist.
 double Box::velocity(double temp) {
+	if (temp == 0.0)
+		return 0.0;
+
 	double random;                       // random number between -0.5 and 0.5
 	double sigmasquared = temp;    // Assumes M = mass of sphere = 1
 	double sigma = sqrt(sigmasquared); // variance of Gaussian

@@ -80,7 +80,7 @@ void pack2rdf(Box& box, int num_voids, int num_bins, double cutoff) {
 
 	//Write rdf to file
 	std::ofstream file;
-	file.open("PACK_RDF");
+	file.open("pack.rdf");
 	file << ss.str();
 	file.close();
 }
@@ -88,64 +88,29 @@ void pack2rdf(Box& box, int num_voids, int num_bins, double cutoff) {
 int main(int argc, char** argv)
 {
 	read_input input;
-	int error = input.read(argc, argv);
-	if (error) return error;
-
-	double d, r;   // initial diameter and radius of spheres
+	input.read(argc, argv);
 
 	if (strcasecmp(input.readfile, "new") == 0)
 		input.readfile[0] = 0;
 
-	if (input.readfile[0]) // read in existing configuration
-	{
-		// read the header
-		std::ifstream infile(input.readfile);
-		if (!infile)
-		{
-			std::cout << "error, can't open " << input.readfile << std::endl;
-			exit(-1);
-		}
-		else
-		{
-			int dim;
-			infile >> dim; infile.ignore(256, '\n');
-			if (dim != DIM)  // quit if dimensions don't match
-			{
-				std::cout << "error, dimensions don't match" << std::endl;
-				exit(-1);
-			}
-			infile.ignore(256, '\n');  // ignore the N 1 line
-			infile >> input.N; infile.ignore(256, '\n');
-			std::cout << "N = " << input.N << std::endl;
-			infile >> d; infile.ignore(256, '\n');
-			std::cout << "d = " << d << std::endl;
-			r = d / 2.;
-			std::cout << "r = " << r << std::endl;
-		}
-	}
-	else // create a new configuration
-	{
-		r = pow(input.initialpf * pow(SIZE, DIM) / (input.N * VOLUMESPHERE), 1.0 / ((double)(DIM)));
-	}
-
 	//Temporary radii distribution for testing
 	std::vector<double> particle_masses(input.particle_sizes.size(), 1.0);
 
-	Box b(input.N, r, input.growthrate, input.maxpf, input.particle_sizes, input.particle_fractions, particle_masses, input.hardwallBC, input.seed);
+	Box b(input.dim, 
+		input.N, 
+		input.growthrate,
+		input.initialpf,
+		input.maxpf, 
+		input.particle_sizes, 
+		input.particle_fractions, 
+		particle_masses, 
+		input.hardwallBC, 
+		input.seed);
 
 	std::cout << "ngrids = " << b.ngrids << std::endl;
-	std::cout << "DIM = " << DIM << std::endl;
+	std::cout << "DIM = " << input.dim << std::endl;
 
-	if (input.readfile[0])
-	{
-		std::cout << "Reading in sphere positions from file" << std::endl;
-		b.recreateSpheres(input.readfile, input.temp);
-	}
-	else
-	{
-		std::cout << "Creating new sphere  positions" << std::endl;
-		b.createSpheres(input.temp);
-	}
+	b.initSpheres(input.readfile[0] != 0, input.readfile, input.temp);
 
 	std::ofstream output(input.datafile);
 	output.precision(16);
