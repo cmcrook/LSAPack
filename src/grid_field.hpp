@@ -10,12 +10,9 @@
 	
    if you use these codes.	
 */
-
-
-#ifndef GRID_FIELD_H
-#define GRID_FIELD_H
-
 #include "vec.hpp"
+
+#include <vector>
 
 // ======================================================================
 // grid_field 
@@ -30,7 +27,7 @@ class GridField {
   int elements;
 
  private:
-  T* f;
+  std::vector<T> f;
   vector<D, int> size;           // number of grid points for each dimension
   vector<D, int> offset;
  
@@ -38,7 +35,6 @@ class GridField {
 
   GridField();
   GridField(const vector<D, int>&);
-  ~GridField();
 
   T& get(const vector<D, int>&);
 
@@ -53,7 +49,7 @@ class GridField {
 // ~~~~~~~~~~~~
 template<int D, class T>
 GridField<D, T>::GridField()
-  : f(0), elements(0)
+  : elements(0)
 {
 }
 
@@ -62,21 +58,9 @@ GridField<D, T>::GridField()
 // ~~~~~~~~~~~~
 template<int D, class T>
 GridField<D, T>::GridField(const vector<D, int>& s)
-  : f(0)
 {
   set_size(s);
 }
-
-
-// ~grid_field
-// ~~~~~~~~~~~~~
-template <int D, class T>
-GridField<D, T>::~GridField()
-{
-  if(f != 0)
-    delete[] f;
-}
-
 
 // get_size
 // ~~~~~~~~
@@ -92,8 +76,7 @@ inline vector<D, int> GridField<D, T>::get_size() const
 template<int D, class T>
 void GridField<D, T>::set_size(const vector<D, int>& s)
 {
-  if(f != 0)
-    delete[] f;
+   f.clear();
 
   size = s;
 
@@ -103,7 +86,7 @@ void GridField<D, T>::set_size(const vector<D, int>& s)
     elements *= size.x[i];
   }
 
-  f = new T[elements];
+  f.resize(elements);
 }
 
 
@@ -152,7 +135,3 @@ void GridField<D, T>::initialize(const int value)
   for(int i=0; i<elements; i++)
     f[i] = value;
 }
-
-
-
-#endif
