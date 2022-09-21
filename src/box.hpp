@@ -143,10 +143,10 @@ public:
 	time_t start, error, end;      // run time of program
 
 	// arrays
-	Sphere* s;                      // array of spheres
+	std::vector<Sphere> s;                      // array of spheres
 	GridField<DIM, int> cells; // array that keeps track of spheres in each cell
 	int* binlist;                   // linked-list for cells array
-	Heap heap;                         // event heap
+	std::unique_ptr<Heap> heap;                         // event heap
 	vector<DIM>* x;                 // positions of spheres.used for graphics
 };
 

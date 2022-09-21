@@ -14,8 +14,8 @@
 //==============================================================
 // Constructor
 //==============================================================
-Heap::Heap(int maxsize_i):
-  maxsize(maxsize_i)
+Heap::Heap(int maxsize_i, std::vector<Sphere>& s) :
+  maxsize(maxsize_i), s(s)
 {
   a = new int[maxsize];
   index = new int[maxsize];
@@ -27,13 +27,12 @@ Heap::Heap(int maxsize_i):
 //==============================================================
 // Constructor
 //==============================================================
-Heap::Heap(const Heap &h)
+Heap::Heap(const Heap &h) : s(h.s)
 {
   maxsize = h.maxsize;
   a = h.a;
   index = h.index;
   N = h.N;                // current number of events in heap
-  s = h.s;
 }
 
 

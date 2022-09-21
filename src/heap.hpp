@@ -6,12 +6,14 @@
 #include "event.hpp"
 #include "sphere.hpp"
 
+#include <vector>
+
 class Heap {
 
  public:
 
   // constructor and destructor
-  Heap(int maxsize);
+  Heap(int maxsize, std::vector<Sphere>& s);
   Heap(const Heap &h);
   ~Heap();
 
@@ -19,7 +21,7 @@ class Heap {
   int maxsize;   // max allowed number of events
   int N;         // current number of events
   int *a;
-  Sphere *s;
+  std::vector<Sphere>& s;
   int *index;     // array of indices for each sphere
   //event minevent;
 

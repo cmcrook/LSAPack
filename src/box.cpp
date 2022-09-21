@@ -26,6 +26,8 @@
 #include "recorder.hpp"
 #include <omp.h>
 
+#include <memory>
+
 //==============================================================
 //==============================================================
 //  Class Box: Fills box with hardspheres to given packing fraction
@@ -50,7 +52,7 @@ Box::Box(int dim,
 	dim(dim),
 	N(N_i),
 	growthrate(growthrate_i),
-	heap(N_i + 1),
+
 	initpf(initpf_i),
 	maxpf(maxpf_i),
 	particle_sizes(bidispersityratio_i),
@@ -71,10 +73,10 @@ Box::Box(int dim,
 	collisionrate = 0.0;
 	maxSizeChange = DBL_MAX;
 
-	s = new Sphere[N];
+	s.resize(N);
 	binlist = new int[N];
 	x = new vector<DIM>[N];
-	heap.s = s;
+	heap = std::make_unique<Heap>(N_i + 1, s);
 
 	srand(seed);        // initialize the random number generator
 	for (int i = 0; i < N; i++)    // initialize binlist to -1
@@ -88,7 +90,6 @@ Box::Box(int dim,
 // Destructor
 //==============================================================
 Box::~Box() {
-	delete[] s;
 	delete[] binlist;
 	delete[] x;
 }
@@ -374,7 +375,7 @@ void Box::setInitialEvents()
 	{
 		Event e(gtime, i, INF);
 		s[i].nextevent = e;
-		heap.insert(i);
+		heap->insert(i);
 	}
 }
 
@@ -433,7 +434,7 @@ void Box::collisionChecker(Event c)
 
 	// give collision cj to j
 	s[j].nextevent = cj;
-	heap.upheap(heap.index[j]);
+	heap->upheap(heap->index[j]);
 }
 
 
@@ -688,7 +689,7 @@ double Box::quadraticFormula(double a, double b, double c)
 void Box::processEvent() {
 	neventstot++;
 	// Extract first event from heap
-	int i = heap.extractmax();
+	int i = heap->extractmax();
 	Event e = s[i].nextevent; // current event
 	Event f;                  // replacement event
 
@@ -699,7 +700,7 @@ void Box::processEvent() {
 		collision(e);
 		f = findNextEvent(i);
 		s[i].nextevent = f;
-		heap.downheap(1);
+		heap->downheap(1);
 		if (f.time < e.time)
 		{
 			std::cout << "error, replacing event with < time" << std::endl;
@@ -723,7 +724,7 @@ void Box::processEvent() {
 		//std::cout << "check for " << e.i << " at time " << e.time << std::endl;
 		f = findNextEvent(i);
 		s[i].nextevent = f;
-		heap.downheap(1);
+		heap->downheap(1);
 	}
 	else if (e.j == INF - 1)      // sphere outgrowing unit cell, decrease ngrids!
 	{
@@ -733,7 +734,7 @@ void Box::processEvent() {
 		//ngrids = Optimalngrids();
 		//std::cout << "need to reduce ngrids to " << ngrids << std::endl;
 		changeNgrids(ngrids);
-		heap.downheap(1);
+		heap->downheap(1);
 	}
 	else                    // transfer!
 	{
@@ -742,7 +743,7 @@ void Box::processEvent() {
 		transfer(e);
 		f = findNextEvent(i);
 		s[i].nextevent = f;
-		heap.downheap(1);
+		heap->downheap(1);
 		//r = FindNextEvent(i, e.j-N-DIM-1);
 		//if (f.time <= e.time)
 		if (f.time < e.time)
@@ -952,7 +953,7 @@ void Box::updateCell(int i, vector<DIM, int>& celli) {
 //==============================================================
 void Box::outputEvents()
 {
-	heap.print();
+	heap->print();
 }
 
 
