@@ -134,6 +134,10 @@ void Box::readPositions(const char* filename) {
 	cells.initialize(-1);      // initialize cells to -1
 
 	infile.close();
+
+	for (int i = 0; i < N; i++)
+		std::cout << s[i].x[0] << ", " << s[i].x[1] << ", " << s[i].x[2] << std::endl;
+	std::cout << std::endl <<  std::endl;
 }
 
 void Box::initSpheres(bool fromFile, const char* filename, double temp) {
@@ -658,8 +662,6 @@ double Box::calculateCollision(int i, int j, vector<DIM> pboffset) {
 double Box::quadraticFormula(double a, double b, double c)
 {
 	double x = dblINF;
-	double xpos;
-	double xneg;
 	double det = b * b - a * c;
 
 	if (c <= 0.)
@@ -1132,8 +1134,19 @@ void Box::synchronize(bool rescale) {
 			maxSizeChange = gtime - s[i].lutime;
 		}
 
+		std::cout << s[i].x[0] << ", " << s[i].x[1] << ", " << s[i].x[2] << std::endl;
+
+		std::cout << "Velocity: " << s[i].v[0] << ", " << s[i].v[1] << ", " << s[i].v[2] << std::endl;
+		std::cout << "Time diff: " << (gtime - s[i].lutime) << std::endl;
+
+		vector<DIM, double> tv = s[i].x + s[i].v* (gtime - s[i].lutime);
+		std::cout << "dx " << tv[0] << ", " << tv[1] << ", " << tv[2] << std::endl;
+
 		s[i].x = s[i].x + s[i].v * (gtime - s[i].lutime);
 		s[i].nextevent.time -= gtime;
+
+		std::cout << s[i].x[0] << ", " << s[i].x[1] << ", " << s[i].x[2] << std::endl;
+		std::cout << std::endl;
 
 		if (s[i].nextevent.time < 0.)
 			std::cout << "error, event times negative after synchronization" << std::endl;

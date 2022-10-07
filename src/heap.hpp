@@ -15,14 +15,13 @@ class Heap {
   // constructor and destructor
   Heap(int maxsize, std::vector<Sphere>& s);
   Heap(const Heap &h);
-  ~Heap();
 
   // variables
   int maxsize;   // max allowed number of events
   int N;         // current number of events
-  int *a;
+  std::vector<int> a;
   std::vector<Sphere>& s;
-  int *index;     // array of indices for each sphere
+  std::vector<int> index;     // array of indices for each sphere
   //event minevent;
 
 

@@ -61,7 +61,7 @@ void pack2rdf(Box& box, int num_voids, int num_bins, double cutoff) {
 
 						double sqrDist = image[0] * image[0] + image[1] * image[1] + image[2] * image[2];
 						if (sqrDist < cutoff * cutoff) {
-							int bin_i = floor(std::sqrt(sqrDist) / bin_width);
+							int bin_i = static_cast<int>(floor(std::sqrt(sqrDist) / bin_width));
 							bins[bin_i]++;
 						}
 					}

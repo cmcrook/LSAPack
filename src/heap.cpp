@@ -17,9 +17,9 @@
 Heap::Heap(int maxsize_i, std::vector<Sphere>& s) :
   maxsize(maxsize_i), s(s)
 {
-  a = new int[maxsize];
-  index = new int[maxsize];
-  
+  a.resize(maxsize);
+  index.resize(maxsize);
+
   N = 0;   // current number of events in heap
 }
 
@@ -33,16 +33,6 @@ Heap::Heap(const Heap &h) : s(h.s)
   a = h.a;
   index = h.index;
   N = h.N;                // current number of events in heap
-}
-
-
-//==============================================================
-// Destructor
-//==============================================================
-Heap::~Heap()
-{
-  delete[] a;
-  delete[] index;
 }
 
 //==============================================================
