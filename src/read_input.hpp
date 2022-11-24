@@ -18,6 +18,7 @@ public:
 	double maxpressure;
 	double maxcollisionrate;
 	double maxSizeChange;
+	double maxDensityChange;
 	double citer;
 	std::vector<double> particle_sizes;         // ratio of sphere radii for bidisperse 
 	std::vector<int> particle_counts;      // fraction of larger spheres

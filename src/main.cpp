@@ -129,6 +129,7 @@ int main(int argc, char** argv)
 	std::cout << stats.str();
 
 	int iteration = 0;
+	double prev_pf = 0;
 	//b.writeLAMMPSDump("pack.dump", iteration);
 	b.writeConfiguration(input.writefile, iteration);
 	while (b.pf < input.maxpf)	{
@@ -160,10 +161,14 @@ int main(int argc, char** argv)
 			b.writeConfiguration(input.writefile, iteration);
 		}
 
-		if (b.maxSizeChange < input.maxSizeChange)
+		//if (b.maxSizeChange < input.maxSizeChange) {
+		if(input.maxDensityChange >= b.pf - prev_pf){
 			b.citer++;
-		else
+		}
+		else {
 			b.citer = 0;
+		}
+		prev_pf = b.pf;
 
 		if (b.citer >= input.citer)
 			break;

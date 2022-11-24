@@ -91,6 +91,7 @@ int read_input::read(int argc, char* argv[])
 		infile.get(buf, 100, '='); infile.get(c); infile >> maxpressure;
 		infile.get(buf, 100, '='); infile.get(c); infile >> maxcollisionrate;
 		infile.get(buf, 100, '='); infile.get(c); infile >> maxSizeChange;
+		infile.get(buf, 100, '='); infile.get(c); infile >> maxDensityChange;
 		infile.get(buf, 100, '='); infile.get(c); infile >> citer;
 
 		//Need to rewrite to read in list of sizes, fractions and masses from input file
@@ -139,6 +140,7 @@ int read_input::read(int argc, char* argv[])
 		std::cout << "\tmaxpressure : " << maxpressure << std::endl;
 		std::cout << "\tmaxcollisionrate : " << maxcollisionrate << std::endl;
 		std::cout << "\tmaxSizeChange: " << maxSizeChange << std::endl;
+		std::cout << "\tmaxDensityChange" << maxDensityChange << std::endl;
 		std::cout << "\tciter: " << citer << std::endl;
 		std::cout << "\thardwallBC : " << hardwalls << std::endl;
 		std::cout << "\treadfile : " << readfile << std::endl;

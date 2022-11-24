@@ -8,6 +8,7 @@ growthrate = 0.01;            // growth rate
 maxpressure = 1e10;       // max pressure 
 maxcollisionrate = 1e10;  // max collision rate 
 maxSizeChange = 1e-8;
+maxDensityChange = 1e-6;
 citer = 2;
 hardwalls = 0;                   // 0 for periodic, 1 for hard wall BC
 readfile = new                 // can read in configuration of spheres; if new, creates new
