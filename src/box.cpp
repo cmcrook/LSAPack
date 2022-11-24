@@ -28,6 +28,8 @@
 
 #include <memory>
 
+#define MAX_TRIES 10000
+
 //==============================================================
 //==============================================================
 //  Class Box: Fills box with hardspheres to given packing fraction
@@ -39,15 +41,15 @@
 // Constructor
 //==============================================================
 Box::Box(int dim, 
-	int N_i, 
+	int N_i,
 	double growthrate_i, 
 	double initpf_i,
 	double maxpf_i,
-	std::vector<double> bidispersityratio_i, 
-	std::vector<double> bidispersityfraction_i,
+	std::vector<double> sizeratio_i, 
+	std::vector<int> count_i,
 	std::vector<double> massratio_i, 
-	int hardwallBC_i, 
-	int seed) :
+	bool hardwallBC_i, 
+	unsigned int seed) :
 	
 	dim(dim),
 	N(N_i),
@@ -55,10 +57,10 @@ Box::Box(int dim,
 
 	initpf(initpf_i),
 	maxpf(maxpf_i),
-	particle_sizes(bidispersityratio_i),
-	particle_fraction(bidispersityfraction_i),
+	particle_sizes(sizeratio_i),
+	particle_counts(count_i),
 	particle_mass(massratio_i),
-	hardwallBC(hardwallBC_i),
+	hardwalls(hardwallBC_i),
 	seed(seed)
 {
 	gtime = 0.0;
@@ -169,10 +171,10 @@ void Box::recreateSpheres(const char* filename, double temp) {
 
 // Creates all N spheres at random positions
 void Box::createSpheres(double temp) {
-	particle_count.resize(particle_fraction.size(), 0);
+	particle_counts.resize(particle_counts.size(), 0);
 	int species = 0;
-	double frac = 0.0;
-	frac += particle_fraction[species];
+	int count = 0;
+	count += particle_counts[species];
 	double radius = particle_sizes[species];
 	double growth_rate = growthrate * particle_sizes[species]; //Shouldn't the growthrate be the same for all particles
 	double mass = particle_mass[species];
@@ -182,11 +184,11 @@ void Box::createSpheres(double temp) {
 	{
 		createSphere(Ncurrent, r * radius, growth_rate, mass, species);
 		Ncurrent++;
-		particle_count[species]++;
+		particle_counts[species]++;
 
-		if (Ncurrent >= N * frac && species < particle_sizes.size() - 1) {
+		if (Ncurrent >= count && species < particle_sizes.size() - 1) {
 			species++;
-			frac += particle_fraction[species];
+			count += particle_counts[species];
 			radius = particle_sizes[species];
 			growth_rate = growthrate * particle_sizes[species];
 			mass = particle_mass[species];
@@ -205,21 +207,21 @@ void Box::createSpheres(double temp) {
 //==============================================================
 void Box::createSphere(int Ncurrent, double radius, double growth_rate, double mass, int species)
 {
-	int keeper;    // boolean variable: 1 means ok, 0 means sphere already there
+	bool keeper;    // boolean variable: 1 means ok, 0 means sphere already there
 	int counter = 0;   // counts how many times sphere already exists
 	vector<DIM> xrand;  // random new position vector
 	double d = 0.0;
 
-	while (counter < 1000)
+	while (counter < MAX_TRIES)
 	{
-		keeper = 1;
+		keeper = true;
 
 		for (int k = 0; k < DIM; k++)
 			xrand[k] = ((double)rand() / (double)RAND_MAX)* SIZE;
 
 		for (int i = 0; i < Ncurrent; i++) {
 			d = 0.0;
-			if (hardwallBC) {
+			if (hardwalls) {
 				for (int k = 0; k < DIM; k++) {
 					d += (xrand[k] - s[i].x[k]) * (xrand[k] - s[i].x[k]);
 				}
@@ -237,30 +239,30 @@ void Box::createSphere(int Ncurrent, double radius, double growth_rate, double m
 
 			// overlapping!
 			if (d <= (radius + s[i].r) * (radius + s[i].r)) {
-				keeper = 0;
+				keeper = false;
 				counter++;
 				break;
 			}
 		}
 
-		if (hardwallBC)
+		if (hardwalls)
 		{
 			for (int k = 0; k < DIM; k++)    // check if overlapping wall
 			{
 				if ((xrand[k] <= radius) || (SIZE - xrand[k] <= radius)) // touching wall
 				{
-					keeper = 0;
+					keeper = false;
 					counter++;
 					break;
 				}
 			}
 		}
 
-		if (keeper == 1)
+		if (keeper)
 			break;
 
-		if (counter >= 1000) {
-			std::cout << "counter >= 1000" << std::endl;
+		if (counter >= MAX_TRIES) {
+			std::cout << "counter >= 1000" << std::endl; //TODO: Better error message
 			exit(-1);
 		}
 	}
@@ -461,7 +463,7 @@ Event Box::findNextTransfer(int i)
 			newtime = dblINF;
 		else if (vi[k] > 0)  // will hit right wall, need to check if last wall
 		{
-			if ((hardwallBC) && (s[i].cell[k] == ngrids - 1))
+			if ((hardwalls) && (s[i].cell[k] == ngrids - 1))
 				newtime = ((double)(s[i].cell[k] + 1) * SIZE / ((double)(ngrids))
 					   - (xi[k] + s[i].r + s[i].gr * gtime)) / (vi[k] + s[i].gr);
 			else
@@ -476,7 +478,7 @@ Event Box::findNextTransfer(int i)
 		}
 		else if (vi[k] < 0)  // will hit left wall
 		{
-			if ((hardwallBC) && (s[i].cell[k] == 0))
+			if ((hardwalls) && (s[i].cell[k] == 0))
 				newtime = ((double)(s[i].cell[k]) * SIZE / ((double)(ngrids))
 					   - (xi[k] - (s[i].r + s[i].gr * gtime))) / (vi[k] - s[i].gr);
 			else
@@ -620,7 +622,7 @@ Event Box::findNextCollision(int i) {
 // Calculates collision time between i and image of j using quadratic formula
 double Box::calculateCollision(int i, int j, vector<DIM> pboffset) {
 	PROFILE_SCOPE("CalculateCollision");
-	if ((hardwallBC) && (pboffset.norm_squared() > 1E-12))
+	if ((hardwalls) && (pboffset.norm_squared() > 1E-12))
 	{
 		return dblINF;
 	}
@@ -828,7 +830,7 @@ void Box::transfer(Event e)
 		k = j - N - DIM - 2;
 		celli[k] = s[i].cell[k] + 1;
 
-		if (hardwallBC)
+		if (hardwalls)
 		{
 			// if in right-most cell, reflect back
 			if (s[i].cell[k] == ngrids - 1)
@@ -856,7 +858,7 @@ void Box::transfer(Event e)
 		k = -j + N + DIM;
 		celli[k] = s[i].cell[k] - 1;
 
-		if (hardwallBC)
+		if (hardwalls)
 		{
 			// if in left-most cell, reflect back
 			if (s[i].cell[k] == 0)
@@ -1134,23 +1136,23 @@ void Box::synchronize(bool rescale) {
 			maxSizeChange = gtime - s[i].lutime;
 		}
 
-		std::cout << s[i].x[0] << ", " << s[i].x[1] << ", " << s[i].x[2] << std::endl;
+		//std::cout << s[i].x[0] << ", " << s[i].x[1] << ", " << s[i].x[2] << std::endl;
 
-		std::cout << "Velocity: " << s[i].v[0] << ", " << s[i].v[1] << ", " << s[i].v[2] << std::endl;
-		std::cout << "Time diff: " << (gtime - s[i].lutime) << std::endl;
+		//std::cout << "Velocity: " << s[i].v[0] << ", " << s[i].v[1] << ", " << s[i].v[2] << std::endl;
+		//std::cout << "Time diff: " << (gtime - s[i].lutime) << std::endl;
 
 		vector<DIM, double> tv = s[i].x + s[i].v* (gtime - s[i].lutime);
-		std::cout << "dx " << tv[0] << ", " << tv[1] << ", " << tv[2] << std::endl;
+		//std::cout << "dx " << tv[0] << ", " << tv[1] << ", " << tv[2] << std::endl;
 
 		s[i].x = s[i].x + s[i].v * (gtime - s[i].lutime);
 		s[i].nextevent.time -= gtime;
 
-		std::cout << s[i].x[0] << ", " << s[i].x[1] << ", " << s[i].x[2] << std::endl;
-		std::cout << std::endl;
+		//std::cout << s[i].x[0] << ", " << s[i].x[1] << ", " << s[i].x[2] << std::endl;
+		//std::cout << std::endl;
 
 		if (s[i].nextevent.time < 0.)
 			std::cout << "error, event times negative after synchronization" << std::endl;
-		if (rescale == true)   // give everyone checks
+		if (rescale)   // give everyone checks
 		{
 			s[i].nextevent = Event(0., i, INF);
 			s[i].v /= vavg;
@@ -1164,7 +1166,7 @@ void Box::synchronize(bool rescale) {
 	rtime += gtime;
 	gtime = 0.;
 
-	if (rescale == true)
+	if (rescale)
 		process(N);
 }
 
@@ -1274,7 +1276,7 @@ void Box::writeLAMMPSDump(const char* wconfigfile, int iteration) {
 	output << "ITEM: NUMBER OF ATOMS" << std::endl;
 	output << N << std::endl;
 
-	if(hardwallBC)
+	if(hardwalls)
 		output << "ITEM: BOX BOUNDS ff ff ff" << std::endl;
 	else 
 		output << "ITEM: BOX BOUNDS pp pp pp" << std::endl;

@@ -8,7 +8,7 @@ class read_input {
 
 public:
 	int dim;                     //dimension of simulation
-	int seed;                    //Random seed
+	unsigned int seed;                    //Random seed
 	int eventspercycle;          // # events per particle per cycle 
 	int N;                        // # spheres
 	double initialpf;               // initial packing fraction
@@ -20,9 +20,9 @@ public:
 	double maxSizeChange;
 	double citer;
 	std::vector<double> particle_sizes;         // ratio of sphere radii for bidisperse 
-	std::vector<double> particle_fractions;      // fraction of larger spheres
+	std::vector<int> particle_counts;      // fraction of larger spheres
 	std::vector<double> particle_masses;                 // ratio of sphere masses
-	int hardwallBC;                   // =0 for periodic, =1 for hard walls
+	bool hardwalls;                   // false = periodic, true =hard walls
 	char readfile[NAME_LEN];    // file with configuration; if new, creates new
 	char distfile[NAME_LEN];    // file with configuration; if new, creates new
 	char writefile[NAME_LEN];    // file to write configuration

@@ -12,7 +12,7 @@
 #define strcasecmp _stricmp
 #endif 
 
-void load_dist_file(const char* wconfigfile, std::vector<double>& sizes, std::vector<double>& freq) {
+void load_dist_file(const char* wconfigfile, std::vector<double>& sizes, std::vector<int>& count) {
 	std::cout << "Reading void size distribution from file..." << std::endl;
 
 	//Start reading input file
@@ -40,7 +40,7 @@ void load_dist_file(const char* wconfigfile, std::vector<double>& sizes, std::ve
 					sizes.push_back(val);
 					break;
 				case 1:
-					freq.push_back(val);
+					count.push_back(val);
 					break;
 				default:
 					std::cout << "Too many terms in distribution on line " << line_num << std::endl;
@@ -52,7 +52,7 @@ void load_dist_file(const char* wconfigfile, std::vector<double>& sizes, std::ve
 			tp.erase(0, pos + 1);
 		}
 
-		std::cout << "\t" << std::left << std::setw(15) << std::setprecision(7) << sizes[line_num] << " " << freq[line_num] << std::endl;
+		std::cout << "\t" << std::left << std::setw(15) << std::setprecision(7) << sizes[line_num] << " " << count[line_num] << std::endl;
 
 		line_num++;
 	}
@@ -84,7 +84,6 @@ int read_input::read(int argc, char* argv[])
 		infile.get(buf, 100, '='); infile.get(c); infile >> dim;
 		infile.get(buf, 100, '='); infile.get(c); infile >> seed;
 		infile.get(buf, 100, '='); infile.get(c); infile >> eventspercycle;
-		infile.get(buf, 100, '='); infile.get(c); infile >> N;
 		infile.get(buf, 100, '='); infile.get(c); infile >> initialpf;
 		infile.get(buf, 100, '='); infile.get(c); infile >> maxpf;
 		infile.get(buf, 100, '='); infile.get(c); infile >> temp;
@@ -95,7 +94,7 @@ int read_input::read(int argc, char* argv[])
 		infile.get(buf, 100, '='); infile.get(c); infile >> citer;
 
 		//Need to rewrite to read in list of sizes, fractions and masses from input file
-		infile.get(buf, 100, '='); infile.get(c); infile >> hardwallBC;
+		infile.get(buf, 100, '='); infile.get(c); infile >> hardwalls;
 		infile.get(buf, 100, '='); infile.get(c);
 		infile.width(NAME_LEN - 1); infile >> readfile;
 		infile.get(buf, 100, '='); infile.get(c);
@@ -116,6 +115,19 @@ int read_input::read(int argc, char* argv[])
 			std::cout << "No seed provided, randomly chose " << static_cast<int>(seed) << std::endl;
 		}
 
+		if (strcasecmp(distfile, "none") != 0) {
+			load_dist_file(distfile, particle_sizes, particle_counts);
+
+			N = 0;
+			for (auto c : particle_counts) {
+				N += c;
+			}
+		}
+		else {
+			std::cout << "No distribute file specified!" << std::endl;
+			throw;
+		}
+
 		std::cout << "\tdim : " << dim << std::endl;
 		std::cout << "\tseed : " << seed << std::endl;
 		std::cout << "\teventspercycle : " << eventspercycle << std::endl;
@@ -128,21 +140,12 @@ int read_input::read(int argc, char* argv[])
 		std::cout << "\tmaxcollisionrate : " << maxcollisionrate << std::endl;
 		std::cout << "\tmaxSizeChange: " << maxSizeChange << std::endl;
 		std::cout << "\tciter: " << citer << std::endl;
-		std::cout << "\thardwallBC : " << hardwallBC << std::endl;
+		std::cout << "\thardwallBC : " << hardwalls << std::endl;
 		std::cout << "\treadfile : " << readfile << std::endl;
 		std::cout << "\tdistfile : " << distfile << std::endl;
 		std::cout << "\twritefile : " << writefile << std::endl;
 		std::cout << "\tdatafile : " << datafile << std::endl;
 	}
-
-	if(strcasecmp(distfile, "none") != 0)
-		load_dist_file(distfile, particle_sizes, particle_fractions);
-	else {
-		//No dist file then just run monodispersed size distribution
-		particle_sizes.push_back(1.0);
-		particle_fractions.push_back(1.0);
-	}
-
 
 	return error;
 }

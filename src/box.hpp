@@ -54,11 +54,11 @@ public:
 		double growthrate_i, 
 		double initpf_i,
 		double maxpf_i,
-		std::vector<double> bidispersityratio, 
-		std::vector<double> bidispersityfraction,
+		std::vector<double> sizeratio, 
+		std::vector<int> count,
 		std::vector<double> massratio, 
-		int hardwallBC, 
-		int seed);
+		bool hardwallBC, 
+		unsigned int seed);
 
 	~Box();
 
@@ -111,7 +111,7 @@ public:
 	//variables
 	const int dim;                 //number of dimensions of simulation (e.g. 3 = 3D)
 	const int N;                   // number of spheres
-	const int seed;                      //Random seed
+	const unsigned int seed;                      //Random seed
 	int ngrids;                    // number of cells in one direction
 	double initpf;                 //initial packing fraction
 	double maxpf;                  //maximal packing fraction
@@ -123,10 +123,9 @@ public:
 	double maxSizeChange;
 	double citer;                 //Consecutive iterations that satisfy stopping criterion
 	std::vector<double> particle_sizes;      // ratio of sphere radii
-	std::vector<double> particle_fraction;   // fraction of smaller spheres
+	std::vector<int> particle_counts;					//count of each particle size
 	std::vector<double> particle_mass;              // ratio of sphere masses
-	std::vector<int> particle_count;					//count of each particle size
-	int hardwallBC;                // =0 for periodic BC, =1 for hard wall
+	bool hardwalls;                // =0 for periodic BC, =1 for hard wall
 
 	// statistics
 	double pressure;               // pressure

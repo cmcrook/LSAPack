@@ -31,7 +31,7 @@ void pack2rdf(Box& box, int num_voids, int num_bins, double cutoff) {
 	yOff.push_back(0.0);
 	zOff.push_back(0.0);
 
-	if (!box.hardwallBC) {
+	if (!box.hardwalls) {
 		xOff.push_back(-1.0);
 		xOff.push_back(1.0);
 		yOff.push_back(-1.0);
@@ -102,9 +102,9 @@ int main(int argc, char** argv)
 		input.initialpf,
 		input.maxpf, 
 		input.particle_sizes, 
-		input.particle_fractions, 
+		input.particle_counts, 
 		particle_masses, 
-		input.hardwallBC, 
+		input.hardwalls, 
 		input.seed);
 
 	std::cout << "ngrids = " << b.ngrids << std::endl;
